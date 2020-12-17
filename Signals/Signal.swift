@@ -35,12 +35,7 @@ final public class Signal<T> {
     /// All the observers of to the `Signal`.
     public var observers:[AnyObject] {
         get {
-            return signalListeners.filter {
-                return $0.observer != nil
-                }.map {
-                    (signal) -> AnyObject in
-                    return signal.observer!
-            }
+            return signalListeners.compactMap { $0.observer }
         }
     }
     
@@ -164,17 +159,7 @@ final public class Signal<T> {
     // MARK: - Private Interface
     
     private func flushCancelledListeners() {
-        var removeListeners = false
-        for signalListener in signalListeners {
-            if signalListener.observer == nil {
-                removeListeners = true
-            }
-        }
-        if removeListeners {
-            signalListeners = signalListeners.filter {
-                return $0.observer != nil
-            }
-        }
+        signalListeners = signalListeners.filter { $0.observer != nil }
     }
 }
 
