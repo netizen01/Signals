@@ -29,6 +29,9 @@ final public class Signal<T> {
     /// `retainLastFired`-property needs to be set to true
     public private(set) var lastDataFired: T? = nil
     
+    /// Enable the Signal to notify subscribers when fire() is called.
+    public var enabled: Bool = true
+    
     /// All the observers of to the `Signal`.
     public var observers:[AnyObject] {
         get {
@@ -123,12 +126,14 @@ final public class Signal<T> {
     ///
     /// - parameter data: The data to fire the `Signal` with.
     public func fire(_ data: T) {
+        guard enabled else { return }
+        
         fireCount += 1
         lastDataFired = retainLastData ? data : nil
         flushCancelledListeners()
         
         for signalListener in signalListeners {
-            if signalListener.filter == nil || signalListener.filter!(data) == true {
+            if signalListener.filter?(data) ?? true {
                 _ = signalListener.dispatch(data: data)
             }
         }
